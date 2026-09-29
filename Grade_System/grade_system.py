@@ -26,7 +26,13 @@ def get_letter_grade(percentage: float) -> str:
 # It accepts a blank input only when a default_value is provided.
 # If the user enters an invalid value, it shows a friendly message
 # and asks whether to try again.
-def read_valid_float(prompt: str, field_name: str, default_value=None, min_value=None):
+def read_valid_float(
+    prompt: str,
+    field_name: str,
+    default_value=None,
+    min_value=None,
+    max_value=None
+):
     """Read a numeric value safely and allow a blank input to use the default value."""
     while True:
         raw_value = input(prompt).strip()
@@ -39,9 +45,17 @@ def read_valid_float(prompt: str, field_name: str, default_value=None, min_value
         try:
             value = float(raw_value)
 
-            # Check minimum allowed value, if one was specified.
+            # Check the allowed range, if limits were specified.
             if min_value is not None and value < min_value:
-                print(f"Please enter a valid {field_name}. It must be greater than or equal to {min_value}.")
+                print(f"Please enter a valid {field_name}. It must be between {min_value} and {max_value}.")
+                retry = input("Would you like to try again? (y/n): ").strip().lower()
+                if retry != "y":
+                    print("Thank you for using the Grade Calculator. Goodbye!")
+                    return None
+                continue
+
+            if max_value is not None and value > max_value:
+                print(f"Please enter a valid {field_name}. It must be between {min_value} and {max_value}.")
                 retry = input("Would you like to try again? (y/n): ").strip().lower()
                 if retry != "y":
                     print("Thank you for using the Grade Calculator. Goodbye!")
@@ -66,9 +80,10 @@ def main():
 
     # Read the obtained marks.
     obtained = read_valid_float(
-        "Enter obtained marks: ",
+        "Enter obtained marks (1-100): ",
         field_name="obtained marks",
-        min_value=0
+        min_value=1,
+        max_value=100
     )
     if obtained is None:
         return
@@ -76,10 +91,11 @@ def main():
     # Read total marks.
     # If the user presses Enter, use the default value of 100.
     total = read_valid_float(
-        "Enter total possible marks (press Enter for default 100): ",
+        "Enter total possible marks (1-100, press Enter for default 100): ",
         field_name="total possible marks",
         default_value=100.0,
-        min_value=0.01
+        min_value=1,
+        max_value=100
     )
     if total is None:
         return
@@ -89,18 +105,20 @@ def main():
         print("Sorry! Obtained marks cannot be greater than total marks.")
         print("Please enter valid marks to get the grade.")
         obtained = read_valid_float(
-            "Enter obtained marks again: ",
+            "Enter obtained marks again (1-100): ",
             field_name="obtained marks",
-            min_value=0
+            min_value=1,
+            max_value=100
         )
         if obtained is None:
             return
 
         total = read_valid_float(
-            "Enter total possible marks again (press Enter for default 100): ",
+            "Enter total possible marks again (1-100, press Enter for default 100): ",
             field_name="total possible marks",
             default_value=100.0,
-            min_value=0.01
+            min_value=1,
+            max_value=100
         )
         if total is None:
             return
